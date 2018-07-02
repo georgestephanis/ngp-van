@@ -2,7 +2,7 @@
 (function(  ){
 	wp.blocks.registerBlockType( 'ngp-van/map', {
 		title: ngpVanBlock.strings.label,
-		icon: 'admin-site',
+		icon: 'location-alt',
 		category: 'common',
 
 		attributes: {
