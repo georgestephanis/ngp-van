@@ -101,6 +101,7 @@ class JessKing_NGP_VAN {
 	public static function googlemaps_api_key_cb() {
 		?>
 		<input type="text" class="regular-text code" name="ngp_van_options[googlemaps_key]" value="<?php echo esc_attr( self::get_option( 'googlemaps_key' ) ); ?>" />
+        <br /><small><a href="https://developers.google.com/maps/documentation/javascript/get-api-key"><?php esc_html_e( 'Get a Google Maps API Key &rarr;' ); ?></a></small>
 		<?php
 	}
 
@@ -179,8 +180,6 @@ class JessKing_NGP_VAN {
 
 		// If there isn't a Google Maps API key, don't display the map.
 		if ( $googlemaps_key = self::get_option( 'googlemaps_key' ) ) {
-
-
 			$return .= sprintf('<div id="map-%1$s" class="ngp-van-map"></div>', $slug);
 			$return .= "<script>
 				var lancaster = { lat: 40.039722, lng: -76.304444 },
@@ -208,7 +207,10 @@ class JessKing_NGP_VAN {
 
 			wp_enqueue_style('ngp-van-map', plugins_url('/css/ngp-van-map.css', __FILE__));
 			wp_enqueue_script('googlemaps', sprintf('https://maps.googleapis.com/maps/api/js?key=%s&callback=initMap', $googlemaps_key));
-		}
+		} elseif ( current_user_can( 'manage_options' ) ) {
+		    // Do a callout to nag the user to get a Google Maps API Key
+		    $return .= '<h1><a href="' . admin_url( 'options-general.php#ngp-van-settings-section' ) . '">Hey, ' . wp_get_current_user()->display_name . ' -- Add a Google Maps API Key to get a map based rendering.</a></h1>';
+        }
 
 		return $return;
 	}
