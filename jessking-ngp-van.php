@@ -177,39 +177,38 @@ class JessKing_NGP_VAN {
 		$return = '<pre>' . print_r( $args, true ) . '</pre>';
 		$return .= '<pre>' . print_r( $result, true ) . '</pre>';
 
-        // If there isn't a Google Maps API key, don't display the map.
-		if ( ! $googlemaps_key = self::get_option( 'googlemaps_key' ) ) {
-		    return $return;
-        }
+		// If there isn't a Google Maps API key, don't display the map.
+		if ( $googlemaps_key = self::get_option( 'googlemaps_key' ) ) {
 
-        $return .= sprintf( '<div id="map-%1$s" class="ngp-van-map"></div>', $slug );
-		$return .= "
-<script>
-var lancaster = { lat: 40.039722, lng: -76.304444 },
-    map, marker, infowindow;
 
-function initMap() {
-	map = new google.maps.Map( document.getElementById('map-{$slug}'), {
-		center: lancaster,
-		zoom: 9
-	});
-    infowindow = new google.maps.InfoWindow({
-        content: '<div id=\"content\"><h1>Jess King for Congress!</h1></div>'
-    });
-	marker = new google.maps.Marker({
-	    position: lancaster,
-	    title: 'Lancaster',
-	    map: map
-	});
-	marker.addListener( 'click', function() {
-        infowindow.open( map, marker );
-    });
-}
-</script>
-";
+			$return .= sprintf('<div id="map-%1$s" class="ngp-van-map"></div>', $slug);
+			$return .= "<script>
+				var lancaster = { lat: 40.039722, lng: -76.304444 },
+					map, marker, infowindow;
+				
+				function initMap() {
+					map = new google.maps.Map( document.getElementById('map-{$slug}'), {
+						center: lancaster,
+						zoom: 9,
+						disableDefaultUI: true
+					});
+					infowindow = new google.maps.InfoWindow({
+						content: '<div id=\"content\"><p>Jess King for Congress!</p></div>'
+					});
+					marker = new google.maps.Marker({
+						position: lancaster,
+						title: 'Lancaster',
+						map: map
+					});
+					marker.addListener( 'click', function() {
+						infowindow.open( map, marker );
+					});
+				}
+				</script>";
 
-		wp_enqueue_style( 'ngp-van-map', plugins_url( '/css/ngp-van-map.css', __FILE__ ) );
-		wp_enqueue_script( 'googlemaps', sprintf( 'https://maps.googleapis.com/maps/api/js?key=%s&callback=initMap', $googlemaps_key ) );
+			wp_enqueue_style('ngp-van-map', plugins_url('/css/ngp-van-map.css', __FILE__));
+			wp_enqueue_script('googlemaps', sprintf('https://maps.googleapis.com/maps/api/js?key=%s&callback=initMap', $googlemaps_key));
+		}
 
 		return $return;
 	}
