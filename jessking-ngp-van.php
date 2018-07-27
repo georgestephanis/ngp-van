@@ -279,6 +279,8 @@ class JessKing_NGP_VAN {
 
 	    // Sample response data: https://developers.ngpvan.com/van-api#events-get-events
 
+        // To do: add pagination parsing to handle lumps larger than 50 items
+
 	    return $events->items;
     }
 
