@@ -266,6 +266,22 @@ class JessKing_NGP_VAN {
 		return $response;
 	}
 
+    /**
+     * @return array|mixed|object
+     */
+    public static function get_upcoming_events() {
+	    $events = self::query_ngp_van_api( 'events', array(
+            // startingAfter doesn't include the specified date, so to include today we need to say after yesterday.
+            'startingAfter' => date( 'Y-m-d', time() - DAY_IN_SECONDS ),
+            '$top'          => 50,
+            '$expand'       => 'locations',
+        ) );
+
+	    // Sample response data: https://developers.ngpvan.com/van-api#events-get-events
+
+	    return $events->items;
+    }
+
 	/**
 	 * General method for communicating with the NGP VAN api server.
 	 *
