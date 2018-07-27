@@ -50,7 +50,7 @@ class JessKing_NGP_VAN {
 		);
 		add_settings_field(
 			'ngp_van_api_key',
-			sprintf( '<label for="ngp_van_app_name">%1$s</label>', __( 'API Key' ) ),
+			sprintf( '<label for="ngp_van_api_key">%1$s</label>', __( 'API Key' ) ),
 			array( __CLASS__, 'ngp_van_api_key_cb' ),
 			'general',
 			'ngp-van'
