@@ -212,6 +212,9 @@ class JessKing_NGP_VAN {
 		    $return .= '<h1><a href="' . admin_url( 'options-general.php#ngp-van-settings-section' ) . '">Hey, ' . wp_get_current_user()->display_name . ' -- Add a Google Maps API Key to get a map based rendering.</a></h1>';
         }
 
+		$return .= "<h3>Upcoming Events:</h3>";
+		$return .= "<ul><li>Thing one</li><li>Thing two</li><li>Thing three</li></ul>";
+
 		return $return;
 	}
 
