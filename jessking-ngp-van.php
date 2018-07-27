@@ -55,6 +55,13 @@ class JessKing_NGP_VAN {
 			'general',
 			'ngp-van'
 		);
+		add_settings_field(
+			'googlemaps_api_key',
+			sprintf( '<label for="googlemaps_api_key">%1$s</label>', __( 'Google Maps API Key' ) ),
+			array( __CLASS__, 'googlemaps_api_key_cb' ),
+			'general',
+			'ngp-van'
+		);
 
 		register_setting( 'general', 'ngp_van_options', array( __CLASS__, 'sanitize_options' ) );
 	}
@@ -89,6 +96,15 @@ class JessKing_NGP_VAN {
 	}
 
 	/**
+	 * Set up googlemapsapi key option display.
+	 */
+	public static function googlemaps_api_key_cb() {
+		?>
+		<input type="text" class="regular-text code" name="ngp_van_options[googlemaps_key]" value="<?php echo esc_attr( self::get_option( 'googlemaps_key' ) ); ?>" />
+		<?php
+	}
+
+	/**
 	 * Return the requested stored option.
 	 *
 	 * @param $key
@@ -114,8 +130,9 @@ class JessKing_NGP_VAN {
 		$options = (array) $options;
 
 		// To do: actually sanitize these.  Escape them, etc.
-		$options['app_name'] = $options['app_name'];
-		$options['api_key'] = $options['api_key'];
+		$options['app_name']       = $options['app_name'];
+		$options['api_key']        = $options['api_key'];
+		$options['googlemaps_key'] = $options['googlemaps_key'];
 
 		return $options;
 	}
@@ -152,12 +169,47 @@ class JessKing_NGP_VAN {
 	 * @return string
 	 */
 	public static function frontend_render_map( $args ) {
+		$slug = substr( md5( json_encode( $args ) ), 0, 12 );
 		$result = self::query_ngp_van_api( 'echoes', array(), 'POST', array(
 			'message' => 'HI THERE NGP VAN!'
 		) );
 
 		$return = '<pre>' . print_r( $args, true ) . '</pre>';
 		$return .= '<pre>' . print_r( $result, true ) . '</pre>';
+
+        // If there isn't a Google Maps API key, don't display the map.
+		if ( ! $googlemaps_key = self::get_option( 'googlemaps_key' ) ) {
+		    return $return;
+        }
+
+        $return .= sprintf( '<div id="map-%1$s" class="ngp-van-map"></div>', $slug );
+		$return .= "
+<script>
+var lancaster = { lat: 40.039722, lng: -76.304444 },
+    map, marker, infowindow;
+
+function initMap() {
+	map = new google.maps.Map( document.getElementById('map-{$slug}'), {
+		center: lancaster,
+		zoom: 9
+	});
+    infowindow = new google.maps.InfoWindow({
+        content: '<div id=\"content\"><h1>Jess King for Congress!</h1></div>'
+    });
+	marker = new google.maps.Marker({
+	    position: lancaster,
+	    title: 'Lancaster',
+	    map: map
+	});
+	marker.addListener( 'click', function() {
+        infowindow.open( map, marker );
+    });
+}
+</script>
+";
+
+		wp_enqueue_style( 'ngp-van-map', plugins_url( '/css/ngp-van-map.css', __FILE__ ) );
+		wp_enqueue_script( 'googlemaps', sprintf( 'https://maps.googleapis.com/maps/api/js?key=%s&callback=initMap', $googlemaps_key ) );
 
 		return $return;
 	}
