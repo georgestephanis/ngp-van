@@ -9,12 +9,18 @@
 
 class JessKing_NGP_VAN {
 
+	/**
+	 * Initial kickoff method for class.  Adds the hooks and such.
+	 */
 	public static function go() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
 		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
+	/**
+	 * Runs on init.  Sets up the front-end render functions for the dynamic in-page content.
+	 */
 	public static function init() {
 		add_shortcode( 'ngp-van-map', array( __CLASS__, 'frontend_render_map' ) );
 		if ( function_exists( 'register_block_type' ) ) {
@@ -24,6 +30,9 @@ class JessKing_NGP_VAN {
 		}
 	}
 
+	/**
+	 * Sets up the admin ui for Gutenberg and options panels and the like.
+	 */
 	public static function admin_init() {
 		add_settings_section(
 			'ngp-van',
@@ -50,6 +59,9 @@ class JessKing_NGP_VAN {
 		register_setting( 'general', 'ngp_van_options', array( __CLASS__, 'sanitize_options' ) );
 	}
 
+	/**
+	 * Set up option panel for settings.
+	 */
 	public static function ngp_van_settings_section() {
 		?>
 		<p id="ngp-van-settings-section">
@@ -58,18 +70,30 @@ class JessKing_NGP_VAN {
 		<?php
 	}
 
+	/**
+	 * Set up app name option display.
+	 */
 	public static function ngp_van_app_name_cb() {
 		?>
 		<input type="text" class="regular-text code" name="ngp_van_options[app_name]" value="<?php echo esc_attr( self::get_option( 'app_name' ) ); ?>" />
 		<?php
 	}
 
+	/**
+	 * Set up api key option display.
+	 */
 	public static function ngp_van_api_key_cb() {
 		?>
 		<input type="text" class="regular-text code" name="ngp_van_options[api_key]" value="<?php echo esc_attr( self::get_option( 'api_key' ) ); ?>" />
 		<?php
 	}
 
+	/**
+	 * Return the requested stored option.
+	 *
+	 * @param $key
+	 * @return null
+	 */
 	public static function get_option( $key ) {
 		$options = get_option( 'ngp_van_options' );
 
@@ -80,15 +104,25 @@ class JessKing_NGP_VAN {
 		return null;
 	}
 
+	/**
+	 * Sanitize and save the options.
+	 *
+	 * @param $options
+	 * @return array
+	 */
 	public static function sanitize_options( $options ) {
 		$options = (array) $options;
 
+		// To do: actually sanitize these.  Escape them, etc.
 		$options['app_name'] = $options['app_name'];
 		$options['api_key'] = $options['api_key'];
 
 		return $options;
 	}
 
+	/**
+	 * Gutenberg admin ui.
+	 */
 	public static function enqueue_block_editor_assets() {
 		wp_enqueue_script(
 			'ngp-van-block',
@@ -111,6 +145,12 @@ class JessKing_NGP_VAN {
 		);
 	}
 
+	/**
+	 * Shortcode / Block rendering for the events map.
+	 *
+	 * @param $args
+	 * @return string
+	 */
 	public static function frontend_render_map( $args ) {
 		$result = self::query_ngp_van_api( 'echoes', array(), 'POST', array(
 			'message' => 'HI THERE NGP VAN!'
@@ -123,7 +163,17 @@ class JessKing_NGP_VAN {
 	}
 
 
+	/**
+	 * General method for communicating with the NGP VAN api server.
+	 *
+	 * @param $endpoint
+	 * @param array $args
+	 * @param string $method
+	 * @param null $body
+	 * @return array|mixed|object
+	 */
 	public static function query_ngp_van_api( $endpoint, $args = array(), $method = 'GET', $body = null ) {
+		// Temporarily short circuit for testing.
 		return [ 'it' => 'works' ];
 
 		// Hash the query and check if it's stored in a valid transient?
