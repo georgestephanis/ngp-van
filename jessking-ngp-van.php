@@ -162,6 +162,53 @@ class JessKing_NGP_VAN {
 		return $return;
 	}
 
+	/**
+	 * Method to add new supporters via a form.
+	 *
+	 * @param $fname
+	 * @param $lname
+	 * @param $email
+	 * @param array $args
+	 * @return array|mixed|object
+	 */
+	public static function add_supporter( $fname, $lname, $email, $args = array() ) {
+		$data = array(
+			'firstName' => $fname,
+			'lastName'  => $lname,
+			'emails'    => array(
+				array(
+					'email' => $email,
+				)
+			),
+			'addresses' => array(),
+		);
+
+		if ( ! empty( $args['zip'] ) ) {
+			$data['addresses'][] = array(
+				'zipOrPostalCode' => $args['zip'],
+			);
+		}
+
+		$response = self::query_ngp_van_api( 'people/findOrCreate', $data, 'POST' );
+
+		if ( $response['vanId'] ) {
+			// Add further data via:
+			/*
+			$canvassData = array(
+				'responses' => array(
+					array(
+						'activistCodeId' => 1234,
+						'action' => 'Apply',
+						'type' => 'ActivistCode'
+					),
+				),
+			);
+			self::query_ngp_van_api( sprintf( 'people/%d/canvassResponses', $response['vanId'] ), $canvassData, 'POST' );
+			*/
+		}
+
+		return $response;
+	}
 
 	/**
 	 * General method for communicating with the NGP VAN api server.
