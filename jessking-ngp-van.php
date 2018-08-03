@@ -297,11 +297,23 @@ class JessKing_NGP_VAN {
 	 */
 	public static function query_ngp_van_api( $endpoint, $data = array(), $method = 'GET', $args = array() ) {
 		// Hash the query and check if it's stored in a valid transient?
+		$key = md5( serialize( func_get_args() ) );
 
+		$args['ngp_van_ignore_cache'] = true; // For the moment don't cache the results.
+
+		if ( ! empty( $args['ngp_van_ignore_cache'] ) ) {
+			$transient = get_transient( "ngp_van_api-{$key}" );
+			if ( false !== $transient ) {
+				return $transient;
+			}
+		}
+
+		// Set the mode for the request
 		$mode = 0;
 		if ( ! empty( $args['ngp_van_mode'] ) ) {
 			$mode = intval( $args['ngp_van_mode'] );
 		}
+
 		$args['headers']['Content-type'] = 'application/json';
 		$args['headers']['Authorization'] = 'Basic ' . base64_encode( self::get_option( 'app_name' ) . ':' . self::get_option( 'api_key' ) . '|' . $mode );
 		$args['method'] = $method;
@@ -313,6 +325,10 @@ class JessKing_NGP_VAN {
 		$response = wp_remote_request( $url, $args );
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body );
+
+		if ( ! empty( $args['ngp_van_ignore_cache'] ) ) {
+			set_transient( "ngp_van_api-{$key}", $data, 5 * MINUTE_IN_SECONDS );
+		}
 
 		return $data;
 	}
