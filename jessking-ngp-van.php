@@ -101,7 +101,7 @@ class JessKing_NGP_VAN {
 	public static function googlemaps_api_key_cb() {
 		?>
 		<input type="text" class="regular-text code" name="ngp_van_options[googlemaps_key]" value="<?php echo esc_attr( self::get_option( 'googlemaps_key' ) ); ?>" />
-        <br /><small><a href="https://developers.google.com/maps/documentation/javascript/get-api-key"><?php esc_html_e( 'Get a Google Maps API Key &rarr;' ); ?></a></small>
+		<br /><small><a href="https://developers.google.com/maps/documentation/javascript/get-api-key"><?php esc_html_e( 'Get a Google Maps API Key &rarr;' ); ?></a></small>
 		<?php
 	}
 
@@ -208,9 +208,9 @@ class JessKing_NGP_VAN {
 			wp_enqueue_style('ngp-van-map', plugins_url('/css/ngp-van-map.css', __FILE__));
 			wp_enqueue_script('googlemaps', sprintf('https://maps.googleapis.com/maps/api/js?key=%s&callback=initMap', $googlemaps_key));
 		} elseif ( current_user_can( 'manage_options' ) ) {
-		    // Do a callout to nag the user to get a Google Maps API Key
-		    $return .= '<h1><a href="' . admin_url( 'options-general.php#ngp-van-settings-section' ) . '">Hey, ' . wp_get_current_user()->display_name . ' -- Add a Google Maps API Key to get a map based rendering.</a></h1>';
-        }
+			// Do a callout to nag the user to get a Google Maps API Key
+			$return .= '<h1><a href="' . admin_url( 'options-general.php#ngp-van-settings-section' ) . '">Hey, ' . wp_get_current_user()->display_name . ' -- Add a Google Maps API Key to get a map based rendering.</a></h1>';
+		}
 
 		$return .= "<h3>Upcoming Events:</h3>";
 		$return .= "<ul><li>Thing one</li><li>Thing two</li><li>Thing three</li></ul>";
@@ -266,24 +266,25 @@ class JessKing_NGP_VAN {
 		return $response;
 	}
 
-    /**
-     * @return array|mixed|object
-     */
-    public static function get_upcoming_events() {
-	    $events = self::query_ngp_van_api( 'events', array(), 'GET', array(
-            // startingAfter doesn't include the specified date, so to include today we need to say after yesterday.
-            'startingAfter' => date( 'Y-m-d', time() - DAY_IN_SECONDS ),
-            '$top'          => 50,
-            '$expand'       => 'locations',
-            'ngp_van_mode'  => 1,
-        ) );
+	/**
+	 * @return array|mixed|object
+	 */
+	public static function get_upcoming_events() {
+		$events = self::query_ngp_van_api( 'events', array(), 'GET', array(
+			// startingAfter doesn't include the specified date, so to include today we need to say after yesterday.
+			'startingAfter' => date( 'Y-m-d', time() - DAY_IN_SECONDS ),
+			'$top'          => 50,
+			'$expand'       => 'locations',
+			'ngp_van_mode'  => 1,
+		) );
 
-	    // Sample response data: https://developers.ngpvan.com/van-api#events-get-events
+		// Sample response data: https://developers.ngpvan.com/van-api#events-get-events
 
-        // To do: add pagination parsing to handle lumps larger than 50 items
+		// To do: add pagination parsing to handle lumps larger than 50 items
 
 	    return $events->items;
-    }
+		return $events->items;
+	}
 
 	/**
 	 * General method for communicating with the NGP VAN api server.
@@ -297,16 +298,16 @@ class JessKing_NGP_VAN {
 	public static function query_ngp_van_api( $endpoint, $data = array(), $method = 'GET', $args = array() ) {
 		// Hash the query and check if it's stored in a valid transient?
 
-        $mode = 0;
-        if ( ! empty( $args['ngp_van_mode'] ) ) {
-            $mode = intval( $args['ngp_van_mode'] );
-        }
+		$mode = 0;
+		if ( ! empty( $args['ngp_van_mode'] ) ) {
+			$mode = intval( $args['ngp_van_mode'] );
+		}
 		$args['headers']['Content-type'] = 'application/json';
 		$args['headers']['Authorization'] = 'Basic ' . base64_encode( self::get_option( 'app_name' ) . ':' . self::get_option( 'api_key' ) . '|' . $mode );
 		$args['method'] = $method;
 		if ( $data ) {
-            $args['body'] = json_encode( $data );
-        }
+			$args['body'] = json_encode( $data );
+		}
 
 		$url = 'https://api.securevan.com/v4/' . ltrim( $endpoint, '/' );
 		$response = wp_remote_request( $url, $args );
