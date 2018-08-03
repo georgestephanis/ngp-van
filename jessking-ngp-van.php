@@ -270,7 +270,7 @@ class JessKing_NGP_VAN {
      * @return array|mixed|object
      */
     public static function get_upcoming_events() {
-	    $events = self::query_ngp_van_api( 'events', array(
+	    $events = self::query_ngp_van_api( 'events', array(), 'GET', array(
             // startingAfter doesn't include the specified date, so to include today we need to say after yesterday.
             'startingAfter' => date( 'Y-m-d', time() - DAY_IN_SECONDS ),
             '$top'          => 50,
@@ -289,15 +289,12 @@ class JessKing_NGP_VAN {
 	 * General method for communicating with the NGP VAN api server.
 	 *
 	 * @param $endpoint
-	 * @param array $args
+	 * @param array $data
 	 * @param string $method
-	 * @param null $body
+	 * @param array $args
 	 * @return array|mixed|object
 	 */
-	public static function query_ngp_van_api( $endpoint, $args = array(), $method = 'GET', $body = null ) {
-		// Temporarily short circuit for testing.
-		return [ 'it' => 'works' ];
-
+	public static function query_ngp_van_api( $endpoint, $data = array(), $method = 'GET', $args = array() ) {
 		// Hash the query and check if it's stored in a valid transient?
 
         $mode = 0;
@@ -307,7 +304,9 @@ class JessKing_NGP_VAN {
 		$args['headers']['Content-type'] = 'application/json';
 		$args['headers']['Authorization'] = 'Basic ' . base64_encode( self::get_option( 'app_name' ) . ':' . self::get_option( 'api_key' ) . '|' . $mode );
 		$args['method'] = $method;
-		$args['body'] = $body;
+		if ( $data ) {
+            $args['body'] = json_encode( $data );
+        }
 
 		$url = 'https://api.securevan.com/v4/' . ltrim( $endpoint, '/' );
 		$response = wp_remote_request( $url, $args );
