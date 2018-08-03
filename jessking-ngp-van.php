@@ -247,7 +247,7 @@ class JessKing_NGP_VAN {
 
 		$response = self::query_ngp_van_api( 'people/findOrCreate', $data, 'POST' );
 
-		if ( $response['vanId'] ) {
+		if ( $response->vanId ) {
 			// Add further data via:
 			/*
 			$canvassData = array(
