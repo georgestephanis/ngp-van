@@ -275,6 +275,7 @@ class JessKing_NGP_VAN {
             'startingAfter' => date( 'Y-m-d', time() - DAY_IN_SECONDS ),
             '$top'          => 50,
             '$expand'       => 'locations',
+            'ngp_van_mode'  => 1,
         ) );
 
 	    // Sample response data: https://developers.ngpvan.com/van-api#events-get-events
@@ -299,8 +300,12 @@ class JessKing_NGP_VAN {
 
 		// Hash the query and check if it's stored in a valid transient?
 
+        $mode = 0;
+        if ( ! empty( $args['ngp_van_mode'] ) ) {
+            $mode = intval( $args['ngp_van_mode'] );
+        }
 		$args['headers']['Content-type'] = 'application/json';
-		$args['headers']['Authorization'] = 'Basic ' . base64_encode( self::get_option( 'app_name' ) . ':' . self::get_option( 'api_key' ) );
+		$args['headers']['Authorization'] = 'Basic ' . base64_encode( self::get_option( 'app_name' ) . ':' . self::get_option( 'api_key' ) . '|' . $mode );
 		$args['method'] = $method;
 		$args['body'] = $body;
 
