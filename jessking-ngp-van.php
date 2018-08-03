@@ -301,7 +301,7 @@ class JessKing_NGP_VAN {
 
 		$args['ngp_van_ignore_cache'] = true; // For the moment don't cache the results.
 
-		if ( ! empty( $args['ngp_van_ignore_cache'] ) ) {
+		if ( ! isset( $args['ngp_van_ignore_cache'] ) || ! $args['ngp_van_ignore_cache'] ) {
 			$transient = get_transient( "ngp_van_api-{$key}" );
 			if ( false !== $transient ) {
 				return $transient;
@@ -326,7 +326,7 @@ class JessKing_NGP_VAN {
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body );
 
-		if ( ! empty( $args['ngp_van_ignore_cache'] ) ) {
+        if ( ! isset( $args['ngp_van_ignore_cache'] ) || ! $args['ngp_van_ignore_cache'] ) {
 			set_transient( "ngp_van_api-{$key}", $data, 5 * MINUTE_IN_SECONDS );
 		}
 
